@@ -20,9 +20,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class MainActivity extends AppCompatActivity {
+    protected final static String PREFERENCE_NAME = "prefs";
     protected final static String READ_TIMES = "read_times";
-
-    protected SharedPreferences prefs;
 
     protected int readTimes = 1;
     protected String mountedPath = "";
@@ -63,19 +62,88 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        prefs = this.getPreferences(Context.MODE_PRIVATE);
-        int times = prefs.getInt(READ_TIMES, 1);
+        readTimes = getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE).getInt(READ_TIMES, 1);
         EditText et = (EditText)findViewById(R.id.edit_read);
-        et.setText(Integer.toString(times));
+        et.setText(Integer.toString(readTimes));
 
-        TextView tvSDCard = (TextView)findViewById(R.id.text_sdcard);
-        tvSDCard.setText("getExternalStorageDirectory(): " + Environment.getExternalStorageDirectory().getPath());
+        TextView tvSDCard = (TextView)findViewById(R.id.text_external);
+        tvSDCard.setText(Environment.getExternalStorageDirectory() ==  null ?
+                            "n/a" : Environment.getExternalStorageDirectory().getPath());
 
-        TextView tvUSB = (TextView)findViewById(R.id.text_usb);
-        tvUSB.setText("getExternalUSBDirectory(): " + getExtendedMemoryPath(this));
+        TextView tvUSB = (TextView)findViewById(R.id.text_usb_storage);
+        tvUSB.setText(getExtendedMemoryPath(this) == null ?
+                        "n/a" : getExtendedMemoryPath(this));
 
         TextView tvFiles = (TextView)findViewById(R.id.text_files);
         tvFiles.setMovementMethod(ScrollingMovementMethod.getInstance());
+
+        Button button = (Button)findViewById(R.id.button_test_external);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (Environment.getExternalStorageDirectory() != null) {
+                    EditText et = (EditText)findViewById(R.id.edit_read);
+                    if (et.getText() == null || TextUtils.isEmpty(et.getText())) {
+                        readTimes = 1;
+                        et.setText(Integer.toString(readTimes));
+                    } else {
+                        readTimes = Integer.parseInt(et.getText().toString());
+                    }
+                    readExternalStorage(readTimes, Environment.getExternalStorageDirectory().getPath());
+                } else {
+                    Toast.makeText(getBaseContext(), "Storage not valid.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        button = (Button)findViewById(R.id.button_test_usb);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (getExtendedMemoryPath(getBaseContext()) != null) {
+                    EditText et = (EditText)findViewById(R.id.edit_read);
+                    if (et.getText() == null || TextUtils.isEmpty(et.getText())) {
+                        readTimes = 1;
+                        et.setText(Integer.toString(readTimes));
+                    } else {
+                        readTimes = Integer.parseInt(et.getText().toString());
+                    }
+                    readExternalStorage(readTimes, getExtendedMemoryPath(getBaseContext()));
+                } else {
+                    Toast.makeText(getBaseContext(), "Storage not valid.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        button = (Button)findViewById(R.id.button_test_mounted);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mountedPath != null && !mountedPath.isEmpty()) {
+                    EditText et = (EditText) findViewById(R.id.edit_read);
+                    if (et.getText() == null || TextUtils.isEmpty(et.getText())) {
+                        readTimes = 1;
+                        et.setText(Integer.toString(readTimes));
+                    } else {
+                        readTimes = Integer.parseInt(et.getText().toString());
+                    }
+                    readExternalStorage(readTimes, mountedPath);
+                } else {
+                    Toast.makeText(getBaseContext(), "Storage not valid.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        button = (Button)findViewById(R.id.button_clear);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TextView tv = (TextView)findViewById(R.id.text_files);
+                if (tv != null) {
+                    tv.setText("");
+                }
+            }
+        });
     }
 
     @Override
@@ -88,8 +156,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             readTimes = Integer.parseInt(et.getText().toString());
         }
-        prefs.edit().putInt("read_times", readTimes);
-        prefs.edit().apply();
+        getSharedPreferences(PREFERENCE_NAME, MODE_PRIVATE).edit().putInt(READ_TIMES, readTimes).commit();
     }
 
     @Override
@@ -103,12 +170,11 @@ public class MainActivity extends AppCompatActivity {
             intentReceived = getIntent().getStringExtra(MountStatusReceiver.INTENT_ACTION);
         }
 
-        TextView tvPath = (TextView)findViewById(R.id.text_path);
+        TextView tvPath = (TextView)findViewById(R.id.text_mounted_path);
         if (mountedPath == null || mountedPath.isEmpty()) {
-            tvPath.setVisibility(View.GONE);
+            tvPath.setText("n/a");
         } else {
-            tvPath.setText("Mounted Storage: " + mountedPath);
-            //tvPath.setVisibility(View.VISIBLE); // Finally I decided dont show this on UI
+            tvPath.setText(mountedPath);
         }
 
         TextView tvStatus = (TextView)findViewById(R.id.text_intent_received);
@@ -123,21 +189,6 @@ public class MainActivity extends AppCompatActivity {
             et.setText(Integer.toString(readTimes));
         }
 
-        Button button = (Button)findViewById(R.id.button_test);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                EditText et = (EditText)findViewById(R.id.edit_read);
-                if (et.getText() == null || TextUtils.isEmpty(et.getText())) {
-                    readTimes = 1;
-                    et.setText(Integer.toString(readTimes));
-                } else {
-                    readTimes = Integer.parseInt(et.getText().toString());
-                }
-                readExternalStorage(readTimes, mountedPath);
-            }
-        });
-
         if (mountedPath != null && !mountedPath.isEmpty()) {
             readExternalStorage(readTimes, mountedPath);
         }
@@ -145,9 +196,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void readExternalStorage(int times, String path) {
         if (path == null || path.isEmpty()) {
-            //Toast.makeText(this, "External USB storage not valid.", Toast.LENGTH_SHORT).show();
-            //return;
-            path = getExtendedMemoryPath(this);
+            return;
         }
 
         Toast.makeText(this, "Start reading storage " + path, Toast.LENGTH_SHORT).show();
@@ -159,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
 
         TextView tv = (TextView)findViewById(R.id.text_files);
         for (int i=1; i<=times; i++) {
-            tv.append("-------------READ STORAGE-------------\r\n");
+            tv.append("---------READ " + path + "---------\r\n");
             readWholeFold(root);
         }
         Toast.makeText(this, "Read storage " + times + " times finished.", Toast.LENGTH_SHORT).show();
@@ -168,7 +217,6 @@ public class MainActivity extends AppCompatActivity {
     private void readWholeFold(File path) {
         File[] files = path.listFiles();
         if (files == null) {
-            Toast.makeText(this, "Read storage " + path + " failed.", Toast.LENGTH_SHORT).show();
             return;
         }
 
