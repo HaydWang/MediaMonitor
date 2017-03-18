@@ -7,9 +7,12 @@ android {
         applicationId "com.cnh.android.pf.mediamonitor"
         minSdkVersion 18
         targetSdkVersion 25
-        versionCode 1
-        versionName "1.0"
+        versionCode 100001
+        versionName "1.00.001"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    applicationVariants.all { variant ->
+        variant.resValue "string", "versionName", variant.versionName
     }
     buildTypes {
         release {

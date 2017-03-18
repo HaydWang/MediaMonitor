@@ -22,7 +22,7 @@ public class MountStatusReceiver extends BroadcastReceiver {
 
             String path = "";
             if (Intent.ACTION_MEDIA_MOUNTED.equals(intent.getAction())) {
-                path = intent.getDataString();
+                path = intent.getDataString().replace("file://", "");
             }
             Log.d("f10210c", "Storage path received: " + path);
 

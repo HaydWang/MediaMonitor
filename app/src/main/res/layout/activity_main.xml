@@ -22,32 +22,57 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="1">
+                android:layout_gravity="center_vertical">
+
+            <ImageView
+                    android:layout_width="72dp"
+                    android:layout_height="72dp"
+                    android:src="@drawable/ic_developer_mode_yellow_a700_36dp"
+                    android:layout_gravity="center_horizontal"/>
 
             <TextView
-                android:id="@+id/text_path"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
-
-            <Button
-                    android:id="@+id/button_test"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="TEST"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
-
+                    android:text="@string/versionName"
+                    android:layout_gravity="center_horizontal"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"/>
         </LinearLayout>
 
-        <ImageView
-                android:layout_width="72dp"
-                android:layout_height="72dp"
-                android:src="@drawable/ic_developer_mode_yellow_a700_36dp"
-                android:layout_gravity="center_vertical"/>
+        <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_gravity="center_vertical">
+
+            <TextView
+                    android:id="@+id/text_sdcard"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="SD Card is: "/>
+
+            <TextView
+                    android:id="@+id/text_usb"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="USB is: "/>
+
+        </LinearLayout>
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/text_path"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
+
+    <Button
+            android:id="@+id/button_test"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="TEST"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
 
     <LinearLayout
         android:layout_width="wrap_content"
