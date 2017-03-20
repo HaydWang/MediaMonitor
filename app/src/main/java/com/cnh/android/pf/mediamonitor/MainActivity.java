@@ -8,6 +8,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -61,6 +63,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        int dpi = getResources().getDisplayMetrics().densityDpi;
+        int heightPixels = getResources().getDisplayMetrics().heightPixels;
+        Log.d("f10210c", "getDisplayMetrics().densityDpi: " + dpi);
+        Log.d("f10210c", "getDisplayMetrics().heightPixels: " + heightPixels);
 
         readTimes = getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE).getInt(READ_TIMES, 1);
         EditText et = (EditText)findViewById(R.id.edit_read);
